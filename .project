@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright IBM Corp. 2017
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+
+<projectDescription>
+	<name>gp-jenkins</name>
+	<comment>IBM Globalizaton Pipeline Jenkins Plugin is designed for integrating Globalization Pipeline service with Jenkins jobs
+		and builds. The plugin can upload translatable resource bundles from any Jenkins job workspace
+		to an instance of Globalization Pipeline service and download translated resource bundles to Jenkins job workspace.</comment>
+	<projects />
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
+	</natures>
+</projectDescription>

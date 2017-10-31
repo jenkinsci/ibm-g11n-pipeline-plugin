@@ -1,0 +1,66 @@
+<!--
+*
+* Copyright IBM Corp. 2017
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+* -->
+
+ <div>
+	<h4>
+		For <span style="color: red">Upload and Download</span> goal
+	</h4>
+	<p>
+		A JSON representation of key:value pairs<br />where each Key is is a <a
+			href="https://tools.ietf.org/html/bcp47" target="_blank">BCP 47
+			language tag</a> used by Globalization Pipeline service instance. And the
+		element Value is a language ID used for output resource file or path
+		name.
+	</p>
+	<ul>
+		<li><b>Upload:</b> Uploads goal is only concerned about the Key
+			of the json. Those are the target languages you want to choose for
+			your source files to be translated in.</li>
+		<br />
+		<p>For example</p>
+		<samp>
+			{ <span style="color: red">"de"</span>:"I am", <span
+				style="color: red">"es"</span>:"Not affected", <span
+				style="color: red">"fr"</span>:"by upload goal" }
+		</samp>
+		<p>will upload your source files to IBM Globalization Pipeline for
+			translation in German, Spanish and French.</p>
+		<li><b>Download:</b> Downloads goal is concerned about both Key
+			and Value of the json. Keys are the target languages you want to
+			choose for downloading your translated files from Globalization
+			Pipeline to Jenkin's output Directory. Values are the language ID
+			used for output resource file or path name</li>
+		<br />
+		<p>For example</p>
+		<samp> { "de":"de", "es":"Spanish", "fr":"Parth" } </samp>
+		<p>
+			will download translated files from IBM Globalization Pipeline for
+			translation in German, Spanish and French with file name<br />
+			&lt;filename&gt;&lt;BCP47 formatting&gt;de.&lt;type&gt;<br />
+			&lt;filename&gt;&lt;BCP47 formatting&gt;Spanish.&lt;type&gt;<br />
+			&lt;filename&gt;&lt;BCP47 formatting&gt;Parth.&lt;type&gt;<br /> same
+			naming rules are mapped for output directory creation if you chose
+			LANGUAGE_DIR or LANGUAGE_SUBDIR in Download goal's output layout
+		</p>
+
+	</ul>
+	<p>Note that in download goal, if Key (target language you opt for
+		downloading in Jenkins workspace) is not set in Globalization Pipeline
+		through upload goal or manually by UI dashbaord, those target
+		languages won't be downloaded.</p>
+
+</div>

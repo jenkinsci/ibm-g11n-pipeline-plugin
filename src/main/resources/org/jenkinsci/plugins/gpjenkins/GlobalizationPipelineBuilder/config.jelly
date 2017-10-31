@@ -1,0 +1,118 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <!--
+    *
+    * Copyright IBM Corp. 2017
+    *
+    * Licensed under the Apache License, Version 2.0 (the "License");
+    * you may not use this file except in compliance with the License.
+    * You may obtain a copy of the License at
+    *
+    * http://www.apache.org/licenses/LICENSE-2.0
+    *
+    * Unless required by applicable law or agreed to in writing, software
+    * distributed under the License is distributed on an "AS IS" BASIS,
+    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    * See the License for the specific language governing permissions and
+    * limitations under the License.
+    *
+
+    This jelly script is used for per-project configuration.
+
+    See global.jelly for a general discussion about jelly script.
+  -->
+
+
+
+  <f:entry title="Instance ID" field="instanceId">
+  	<f:textbox  default="Please enter InstanceId"/>
+  </f:entry>
+  <f:entry title="${%GP URL}" field="url">
+  	<f:textbox  default="Please enter url"/>
+  </f:entry>
+  <f:entry title="${%User ID}" field="userId">
+  	<f:textbox default="Please enter UserId" />
+  </f:entry>
+  <f:entry title="${%GP Password}" field="password">
+  	<f:textbox  default="***"/>
+  </f:entry>
+  <f:validateButton
+   title="${%Test Connection}" progress="${%Testing...}"
+   method="testConnection" with="instanceId,url,userId,password" />
+  <f:entry name="goalType" title="Operation" field="goalType">
+		<select name="goalType">
+    	<option value="upload" selected="${instance.goalType.equals('upload')? 'true':null}">Upload</option>
+    	<option value="download" selected="${instance.goalType.equals('download')? 'true':null}">Download</option>
+		</select>
+  </f:entry>
+  <f:section title="IBM Globalization Pipeline - Override Default Configuration">
+  </f:section>
+
+
+  	<f:entry title="${%Base Directory}" field="baseDir">
+		<f:textbox default="src/main/resources"/>
+	</f:entry>
+	<f:entry title="${%Include Rule}" field="includeRule">
+		<f:textbox  default="**/*.properties" />
+	</f:entry>
+	<f:entry title="${%Exclude Rule}" field="excludeRule">
+		<f:textbox  default="**/*_*.properties" />
+	</f:entry>
+	<f:entry name="type" title="Resource Type" field="type">
+		<select name="type">
+		<option value="java" selected="${instance.type.equals('java')? 'true':null}">Java</option>
+		<option value="json" selected="${instance.type.equals('json')? 'true':null}">JSON</option>
+		<option value="amd" selected="${instance.type.equals('amd')? 'true':null}">AMDjs</option>
+		<option value="ios" selected="${instance.type.equals('ios')? 'true':null}">iOS</option>
+		<option value="android" selected="${instance.type.equals('android')? 'true':null}">Android XML</option>
+		<option value="po" selected="${instance.type.equals('po')? 'true':null}">GNU gettext portable object file</option>
+		<option value="pot" selected="${instance.type.equals('pot')? 'true':null}">GNU gettext portable object template file</option>
+		<option value="yml" selected="${instance.type.equals('yml')? 'true':null}">YAML</option>
+		<option value="xliff" selected="${instance.type.equals('xliff')? 'true':null}">XLIFF</option>
+		</select>
+	</f:entry>
+    <f:entry name="languageIdStyle" title="BCP47 formatting (For DOWNLOAD only)" field="languageIdStyle">
+		<select name="languageIdStyle">
+		<option value="bcp47_underscore" selected="${instance.languageIdStyle.equals('bcp47_underscore')? 'true':null}">BCP47_UNDERSCORE</option>
+		<option value="bcp47" selected="${instance.languageIdStyle.equals('bcp47')? 'true':null}">BCP47</option>
+		</select>
+	</f:entry>
+	<f:entry name="outputSourceLang" title="Download source file?(For DOWNLOAD only)" field="outputSourceLang">
+	    <f:checkbox checked="${instance.outputSourceLang == null? 'false':instance.outputSourceLang}" title="Yes"/>
+	</f:entry>
+	<f:entry name="outputContentOption" title="Output Content Configuration(For DOWNLOAD only)" field="outputContentOption">
+		<select name="outputContentOption">
+		<option value="merge_to_src" selected="${instance.outputContentOption.equals('merge_to_src')? 'true':null}">MERGE TO SOURCE</option>
+		<option value="trans_with_fallback" selected="${instance.outputContentOption.equals('trans_with_fallback')? 'true':null}">TRANSLATED WITH FALLBACK</option>
+		<option value="trans_only" selected="${instance.outputContentOption.equals('trans_only')? 'true':null}">TRANSLATED ONLY</option>
+		<option value="merge_reviewed_to_src" selected="${instance.outputContentOption.equals('merge_reviewed_to_src')? 'true':null}">MERGE REVIEWED TO SOURCE</option>
+		<option value="reviewed_with_fallback" selected="${instance.outputContentOption.equals('reviewed_with_fallback')? 'true':null}">REVIEWED WITH FALLBACK</option>
+		<option value="reviewed_only" selected="${instance.outputContentOption.equals('reviewed_only')? 'true':null}">REVIEWED ONLY</option>
+		</select>
+	</f:entry>
+	<f:entry name="bundleLayout" title="Download goal's output layout(For DOWNLOAD only)" field="bundleLayout">
+		<select name="bundleLayout">
+		<option value="lang_suffix" selected="${instance.bundleLayout.equals('lang_suffix')? 'true':null}">LANGUAGE SUFFIX</option>
+		<option value="lang_subdir" selected="${instance.bundleLayout.equals('lang_subdir')? 'true':null}">LANGUAGE SUBDIR</option>
+		<option value="lang_dir" selected="${instance.bundleLayout.equals('lang_dir')? 'true':null}">LANGUAGE DIRECTORY</option>
+		</select>
+	</f:entry>
+	<f:entry title="Output Directory(For DOWNLOAD only)" field="outDir">
+		<f:textbox default="target/classes" />
+	</f:entry>
+	<f:entry name="overwrite" title="overwrite content?(For DOWNLOAD only)" field="overwrite">
+	    <f:checkbox checked="${instance.overwrite == null? 'true':instance.overwrite}" title="Yes"/>
+	</f:entry>
+	<f:entry title="${%Target languages and Mapping}" field="langMap">
+		<f:textbox value="${instance.langMap == null? '{&quot;de&quot;:&quot;de&quot;,
+		&quot;es&quot;:&quot;es&quot;,
+		&quot;fr&quot;:&quot;fr&quot;,
+		&quot;it&quot;:&quot;it&quot;,
+		&quot;ja&quot;:&quot;ja&quot;,
+		&quot;ko&quot;:&quot;ko&quot;,
+		&quot;pt-BR&quot;:&quot;pt-BR&quot;,
+		&quot;zh-Hans&quot;:&quot;zh-Hans&quot;,
+		&quot;zh-Hant&quot;:&quot;zh-Hant&quot;}':instance.langMap}"/>
+    </f:entry>
+
+</j:jelly>

@@ -1,0 +1,48 @@
+<!--
+ *
+ * Copyright IBM Corp. 2017
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ -->
+
+ <div>
+	<h4>
+		For <span style="color: red">Download</span> goal
+	</h4>
+
+	<p>Specifies one of following keywords to control output file name
+		or path in download goal.</p>
+	<ul>
+		<li><b>LANGUAGE_SUFFIX:</b> In the same directory with the source
+			bundle file, with extra language suffix. For example, if the source
+			bundle file is <samp>&lt;Base
+				Dir&gt;com/ibm/g11n/MyMessages.properties</samp>, then the French version
+			will be <samp>&lt;Output
+				Dir&gt;com/ibm/g11n/MyMessages_fr.properties</samp>.</li>
+		<li><b>LANGUAGE_SUBDIR:</b> In a language sub-directory under the
+			directory where the source bundle file is placed. For example, if the
+			source bundle file is <samp>&lt;Base
+				Dir&gt;res/MyMessages.json</samp>, then the French version will be <samp>&lt;Output
+				Dir&gt;res/fr/MyMessages.json</samp>.</li>
+		<li><b>LANGUAGE_DIR:</b> In a language directory at the same
+			level with the source bundle file. For example, if the source bundle
+			file is <samp>&lt;Base
+				Dir&gt;com/ibm/g11n/en/MyMessages.properties</samp>, then the French
+			version will be <samp>&lt;Output
+				Dir&gt;com/ibm/g11n/fr/MyMessages.properties</samp>.</li>
+	</ul>
+	The default value is <b>LANGUAGE_SUFFIX.</b>
+
+
+</div>
