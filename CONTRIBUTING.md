@@ -49,13 +49,13 @@ change your rights to use your own Contributions for any other purpose.
 
 You can download the CLAs here:
 
- - [individual](https://github.com/IBM-Bluemix/gp-jenkins/licenses/gp-cla-individual.pdf)
+ - [individual](https://github.com/IBM-Bluemix/gp-jenkins/blob/master/licenses/gp-cla-individual.pdf)
 
 If you are an IBMer, please contact us directly as the contribution process is
 slightly different.
 
 ### Acknowledgement
 
-- Master copy: https://github.com/IBM-Bluemix/gp-common/blob/master/CONTRIBUTING.md
+- Master copy: https://github.com/IBM-Bluemix/gp-jenkins/blob/master/CONTRIBUTING.md
 - Copyright © 2017 IBM Corporation.
 - This document forked from [wasdev](https://github.com/WASdev/wasdev.github.io/blob/master/CONTRIBUTING.md)
