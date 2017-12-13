@@ -1,17 +1,6 @@
 /*
- * Copyright IBM Corp. 2017
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * IBM Globalization
+ * IBM Confidential / Copyright (C) IBM Corp. 2017
  */
 
 package org.jenkinsci.plugins.gpjenkins;
@@ -64,24 +53,18 @@ import org.kohsuke.stapler.QueryParameter;
 import javax.servlet.ServletException;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -97,7 +80,7 @@ import java.util.TreeSet;
  * to remember the configuration.
  *
  * <p>
- * When a build is performed, the {@link #perform} method will be invoked.
+ * When a build is performed, the {@link #perform} method will be invoked. 
  *
  * @author Parth Gaglani
  */
@@ -373,8 +356,8 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 	private void mergeTranslation(Bundle bundle, String language, ResourceType type,
 			FilePath srcFile, FilePath outFile) throws InterruptedException, IOException {
 		ResourceFilter filter = ResourceFilterFactory.get(type);
-		try (FileOutputStream fos = new FileOutputStream(outFile.toURI().getPath());
-				FileInputStream fis = new FileInputStream(srcFile.toURI().getPath())) {
+		try (OutputStream fos = outFile.write();
+				InputStream fis = srcFile.read()) {
 			filter.merge(fis, fos, language, bundle);
 		} catch (IOException e) {
 			throw new IOException("I/O error while merging the translated values to "
@@ -385,7 +368,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 	private void exportTranslation(Bundle bundle, String language, ResourceType type,
 			FilePath outFile) throws IOException, InterruptedException {
 		ResourceFilter filter = ResourceFilterFactory.get(type);
-		try (FileOutputStream fos = new FileOutputStream(outFile.toURI().getPath())) {
+		try (OutputStream fos = outFile.write()) {
 			filter.write(fos, language, bundle);
 		} catch (IOException e) {
 			throw new IOException("I/O error while merging the translated values to "
@@ -463,7 +446,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			outputFile = new FilePath(langDir, srcFileName);
 			break;
 		}
-		default:
+		default: 
 			FilePath dir = new FilePath(outBaseDir, relPath);
 			int idx = srcFileName.lastIndexOf('.');
 			String tgtName = null;
@@ -532,7 +515,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			bundle = getBundle(client, pathToBundleId(getType(), bf), language, true, false);
 			exportTranslation(bundle, language, getResourceType(getType()), outputFile);
 			break;
-
+			
 		default:
 			bundle = getBundle(client, pathToBundleId(getType(), bf), language, false, true);
 			mergeTranslation(bundle, language, getResourceType(getType()), bf, outputFile);
@@ -752,7 +735,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					ResourceFilter filter = ResourceFilterFactory.get(getResourceType(type));
 					Map<String, NewResourceEntryData> resEntries = new HashMap<>();
 
-					try (FileInputStream fis = new FileInputStream(bf.toURI().getPath())) {
+					try (InputStream fis = bf.read()) {
 						Bundle resBundle = filter.parse(fis);
 
 						if (createNew) {
@@ -824,7 +807,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				outDirectory = new FilePath(workspace, outDir);
 			}
 
-
+			
 			try {
 				bundleIds = gpClient.getBundleIds();
 			} catch (ServiceException e1) {
@@ -864,7 +847,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					listener.getLogger().println("The source language of the bundle:" + bundleId
 					+ " (" + bdlSrcLang + ") is different from the language specified by the configuration ("
 					+ "en" + ")");
-
+					
 				}
 
 				if (outputSourceLang) {
@@ -898,13 +881,13 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 								+ ") does not exist in the bundle:" + bundleId);
 					}
 				}
-
+				
 			}
 
 
 		}
 
-
+		
 		listener.getLogger().println("*************** IBM GLOBALIZATION PIPELINE BUILDSTEP Done!! ***************");
 
 	}
@@ -936,10 +919,10 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		 * <p>
 		 * If you don't want fields to be persisted, use {@code transient}.
 		 */
-
+		
 
 		/**
-		 * In order to load the persisted global configuration, you have to
+		 * In order to load the persisted global configuration, you have to 
 		 * call load() in the constructor.
 		 */
 		public DescriptorImpl() {
@@ -1109,7 +1092,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 
 		// VALIDATING EXCLUDERULES
 		@SuppressWarnings("deprecation")
-		public FormValidation doCheckExcludeRule(@QueryParameter("excludeRule") String excludeRule,
+		public FormValidation doCheckExcludeRule(@QueryParameter("excludeRule") String excludeRule, 
 				@AncestorInPath AbstractProject project, @QueryParameter("baseDir") String baseDir,
 				@QueryParameter("includeRule") String includeRule)throws IOException, ServletException{
 
@@ -1215,9 +1198,9 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				return FormValidation.error("Something went wrong @language Map " + e.getMessage());
 			}
 		}
-
-
-
+		
+		
+		
 		// VALIDATING OutputSourceLang NO NEED
 		// VALIDATING OutputCotentOption NO NEED
 		// VALIDATING BundleLayout NO NEED
@@ -1257,7 +1240,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 
 
 		public boolean isApplicable(Class<? extends AbstractProject> aClass) {
-			// Indicates that this builder can be used with all kinds of project types
+			// Indicates that this builder can be used with all kinds of project types 
 			return true;
 		}
 
@@ -1277,6 +1260,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			save();
 			return super.configure(req,formData);
 		}
-
+		
 	}
 }
+
