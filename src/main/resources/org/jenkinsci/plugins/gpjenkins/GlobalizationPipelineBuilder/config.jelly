@@ -1,29 +1,11 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <!--
-    *
-    * Copyright IBM Corp. 2017
-    *
-    * Licensed under the Apache License, Version 2.0 (the "License");
-    * you may not use this file except in compliance with the License.
-    * You may obtain a copy of the License at
-    *
-    * http://www.apache.org/licenses/LICENSE-2.0
-    *
-    * Unless required by applicable law or agreed to in writing, software
-    * distributed under the License is distributed on an "AS IS" BASIS,
-    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    * See the License for the specific language governing permissions and
-    * limitations under the License.
-    *
-
     This jelly script is used for per-project configuration.
 
     See global.jelly for a general discussion about jelly script.
   -->
-
-
-
+  
   <f:entry title="Instance ID" field="instanceId">
   	<f:textbox  default="Please enter InstanceId"/>
   </f:entry>
@@ -47,8 +29,8 @@
   </f:entry>
   <f:section title="IBM Globalization Pipeline - Override Default Configuration">
   </f:section>
-
-
+  
+  
   	<f:entry title="${%Base Directory}" field="baseDir">
 		<f:textbox default="src/main/resources"/>
 	</f:entry>
@@ -58,9 +40,13 @@
 	<f:entry title="${%Exclude Rule}" field="excludeRule">
 		<f:textbox  default="**/*_*.properties" />
 	</f:entry>
+	<f:entry title="${%Source Language}" field="srcLang">
+		<f:textbox default="en"/>
+	</f:entry>
 	<f:entry name="type" title="Resource Type" field="type">
 		<select name="type">
 		<option value="java" selected="${instance.type.equals('java')? 'true':null}">Java</option>
+		<option value="javautf8" selected="${instance.type.equals('javautf8')? 'true':null}">JavaUTF8</option>
 		<option value="json" selected="${instance.type.equals('json')? 'true':null}">JSON</option>
 		<option value="amd" selected="${instance.type.equals('amd')? 'true':null}">AMDjs</option>
 		<option value="ios" selected="${instance.type.equals('ios')? 'true':null}">iOS</option>
@@ -95,6 +81,7 @@
 		<option value="lang_suffix" selected="${instance.bundleLayout.equals('lang_suffix')? 'true':null}">LANGUAGE SUFFIX</option>
 		<option value="lang_subdir" selected="${instance.bundleLayout.equals('lang_subdir')? 'true':null}">LANGUAGE SUBDIR</option>
 		<option value="lang_dir" selected="${instance.bundleLayout.equals('lang_dir')? 'true':null}">LANGUAGE DIRECTORY</option>
+		<option value="lang_only" selected="${instance.bundleLayout.equals('lang_only')? 'true':null}">LANGUAGE ONLY</option>
 		</select>
 	</f:entry>
 	<f:entry title="Output Directory(For DOWNLOAD only)" field="outDir">
@@ -114,5 +101,5 @@
 		&quot;zh-Hans&quot;:&quot;zh-Hans&quot;,
 		&quot;zh-Hant&quot;:&quot;zh-Hant&quot;}':instance.langMap}"/>
     </f:entry>
-
+    
 </j:jelly>
