@@ -41,7 +41,7 @@ and download translated resource bundles to Jenkins job workspace.
 ## <a name="TOC-Prerequisites"></a>Prerequisites
 
 * [Jenkins](https://jenkins.io/download/) with v1.625.3 or greater
-* [IBM Globalization Pipeline](https://console.bluemix.net/catalog/services/globalization-pipeline) instance on any region of IBM Bluemix.
+* [IBM Globalization Pipeline](https://console.bluemix.net/catalog/services/globalization-pipeline) instance on any region of IBM Cloud.
 * [Maven](https://maven.apache.org/download.cgi) v3.0 or greater
 
 ---
@@ -113,7 +113,7 @@ In this Build Step, Operations available for this plugin are below.
 ### <a name="TOC-Usage-Credentials"></a>Specifying Globalization Pipeline Service Credentials
 
 The plugin requires *service instance administrator* credentials for a Globalization
-Pipeline service instance. Please refer [Quick Start Guide](https://github.com/IBM-Bluemix/gp-common#quick-start-guide)
+Pipeline service instance. Please refer [Quick Start Guide](https://github.com/IBM-Cloud/gp-common#quick-start-guide)
 to see how to get service credentials information of your Globalization Pipeline instance.
 
 Fill those credentials in this Build Step and test connection.
@@ -246,6 +246,10 @@ below.
 See [Specifying Globalization Pipeline Service Credentials](#TOC-Usage-Credentials) for
 further information.
 
+### `Source Language`
+
+Specifies BCP 47 language tag for the language used in the source bundles. The default value is "en" (English).
+
 ### `Output Directory(For DOWNLOAD only)`
 
 Specifies the output base directory used by `download` operation.
@@ -280,6 +284,7 @@ excludes all files with file name `config.json`.
 Specifies a resource type. Available options are
 
 * **JAVA** - Java property resource bundle file
+* **JAVAUTF8** - Java UTF8 property resource bundle file
 * **JSON** - Resource string key/value pairs stored in JSON format. For now nested JSON object is not supported.
 * **AMDJS** - RequireJS I18N bundle file
 * **GLOBALIZEJS** - Globalize.js JSON resource bundle file
@@ -367,6 +372,7 @@ Specifies one of following keywords to control output file name or path in `down
 * **LANGUAGE_SUFFIX** In the same directory with the source bundle file, with extra language suffix.
 For example, if the source bundle file is `com/ibm/g11n/MyMessages.properties`, then the French
 version will be `com/ibm/g11n/MyMessages_fr.properties`.
+* **LANGUAGE_ONLY** In the same directory with the source bundle file, using language code as the file name with the original file extension. For example, if the source bundle file is `res/en.json`, then the French version will be `res/fr.json`.
 * **LANGUAGE_SUBDIR** In a language sub-directory under the directory where the source bundle file
 is placed. For example, if the source bundle file is `res/MyMessages.json`, then the French
 version will be `res/fr/MyMessages.json`.
