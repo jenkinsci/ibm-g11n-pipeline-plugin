@@ -1,7 +1,6 @@
 /*
- * IBM Globalization
- * IBM Confidential / Copyright (C) IBM Corp. 2017
- */
+	 * Copyright IBM Corp. 2017,2018
+*/
 
 package org.jenkinsci.plugins.gpjenkins;
 import hudson.Launcher;
@@ -1189,7 +1188,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				if(srcLang.trim().equals("")){
 					return FormValidation.errorWithMarkup("Please enter SOURCE LANGUAGE of source files. for eg. <b>en</b>.");
 				}
-				return FormValidation.okWithMarkup("<span style='color:green'>Please make sure source Language is BCP47 valid extension. We do not validate it here.</span>");
+				return FormValidation.okWithMarkup("<span style='color:green'>Please make sure source Language is valid BCP47. We do not validate it here.</span>");
 			}catch(Exception e){
 				return FormValidation.error("Something went wrong @srcLang " + e.getMessage());
 			}
@@ -1233,7 +1232,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				if(langMapObject.entrySet().size() == 0){
 					return FormValidation.error("Please enter atleast one target language :/");
 				}
-				return FormValidation.okWithMarkup("<span style='color:green'>Please make sure that keys are well formed BCP47 extensions of target Languages. We do not validate it here. </span>");
+				return FormValidation.okWithMarkup("<span style='color:green'>Please make sure that keys are well formed BCP47 of target Languages. We do not validate it here. </span>");
 
 
 			}catch(JsonParseException jp){
