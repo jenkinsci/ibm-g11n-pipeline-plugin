@@ -36,9 +36,8 @@
 		<jenkins.version>1.625.3</jenkins.version>
 	</properties>
 
-	<name>TODO Plugin</name>
-	<description>TODO</description>
-	<url>https://wiki.jenkins-ci.org/display/JENKINS/TODO+Plugin</url>
+	<name>gp-jenkins</name>
+	<description>IBM Globalizaton Pipeline Jenkins Plugin is designed for integrating Globalization Pipeline service with Jenkins jobs and builds. The plugin can upload translatable resource bundles from any Jenkins job workspace to an instance of Globalization Pipeline service and download translated resource bundles to Jenkins job workspace.</description>
 
 
 	<licenses>
