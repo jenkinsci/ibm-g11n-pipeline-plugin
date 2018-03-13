@@ -30,6 +30,7 @@ import hudson.tasks.CommandInterpreter;
 import hudson.tasks.Maven;
 import hudson.tasks.Shell;
 import hudson.tasks.BuildStepDescriptor;
+import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
@@ -51,11 +52,13 @@ import com.ibm.g11n.pipeline.client.ServiceAccount;
 import com.ibm.g11n.pipeline.client.ServiceClient;
 import com.ibm.g11n.pipeline.client.ServiceException;
 import com.ibm.g11n.pipeline.client.rb.CloudResourceBundleControl;
-import com.ibm.g11n.pipeline.resfilter.Bundle;
+import com.ibm.g11n.pipeline.resfilter.FilterOptions;
+import com.ibm.g11n.pipeline.resfilter.LanguageBundle;
+import com.ibm.g11n.pipeline.resfilter.LanguageBundleBuilder;
 import com.ibm.g11n.pipeline.resfilter.ResourceFilter;
+import com.ibm.g11n.pipeline.resfilter.ResourceFilterException;
 import com.ibm.g11n.pipeline.resfilter.ResourceFilterFactory;
 import com.ibm.g11n.pipeline.resfilter.ResourceString;
-import com.ibm.g11n.pipeline.resfilter.ResourceType;
 import com.ibm.g11n.pipeline.client.NewResourceEntryData;
 import com.ibm.g11n.pipeline.client.ResourceEntryData;
 
@@ -74,6 +77,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -115,7 +120,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 	private String bundleLayout;
 	private String outDir;
 	private Boolean overwrite;
-	
+
 
 
 
@@ -204,7 +209,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 	public void setInstanceId(String instanceId) {
 		this.instanceId = instanceId;
 	}
-	
+
 	public String getSrcLang() {
 		return srcLang;
 	}
@@ -332,8 +337,8 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		return pkgName + fileName;
 	}
 
-	private ResourceType getResourceType(String type){
-		return ResourceType.valueOf(type.toUpperCase());
+	private String getResourceType(String type){
+		return type.toUpperCase();
 	}
 
 
@@ -360,39 +365,58 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		return languageId;
 	}
 
-	private void mergeTranslation(Bundle bundle, String language, ResourceType type,
+	private String getEmbeddedLanguageId(String gpLanguageTag, Map<String, String> langMap) {
+		String languageId = gpLanguageTag;
+		if (langMap != null) {
+			String mappedId = langMap.get(gpLanguageTag);
+			if (mappedId != null) {
+				languageId = mappedId;
+			}
+		}
+		return languageId;
+	}
+
+
+	private void mergeTranslation(LanguageBundle bundle, String language, String type,
 			FilePath srcFile, FilePath outFile) throws InterruptedException, IOException {
-		ResourceFilter filter = ResourceFilterFactory.get(type);
+		ResourceFilter filter = ResourceFilterFactory.getResourceFilter(type);
 		try (OutputStream fos = outFile.write();
 				InputStream fis = srcFile.read()) {
-			filter.merge(fis, fos, language, bundle);
+			filter.merge(fis, fos, bundle, new FilterOptions(Locale.forLanguageTag(language)));
 		} catch (IOException e) {
-			throw new IOException("I/O error while merging the translated values to "
-					+ outFile.getName());
+			throw new IOException("I/O error while merging the translated strings to " + outFile.getName(), e);
+		} catch (ResourceFilterException e) {
+			throw new IOException("Resource filter error while merging the translated strings to " + outFile.getName(), e);
 		}
 	}
 
-	private void exportTranslation(Bundle bundle, String language, ResourceType type,
+	private void exportTranslation(LanguageBundle bundle, String language, String type,
 			FilePath outFile) throws IOException, InterruptedException {
-		ResourceFilter filter = ResourceFilterFactory.get(type);
+		ResourceFilter filter = ResourceFilterFactory.getResourceFilter(type);
 		try (OutputStream fos = outFile.write()) {
-			filter.write(fos, language, bundle);
+			filter.write(fos, bundle, new FilterOptions(Locale.forLanguageTag(language)));
 		} catch (IOException e) {
-			throw new IOException("I/O error while merging the translated values to "
-					+ outFile.getName());
-		}
+            throw new IOException("I/O error while writing the translated strings to "
+                    + outFile.getName(), e);
+        } catch (ResourceFilterException e) {
+            throw new IOException("Resource filter error while writing the translated strings to "
+                    + outFile.getName(), e);
+        }
 	}
 
-	private Bundle getBundle(ServiceClient client, String bundleId, String language,
+	private LanguageBundle getBundle(ServiceClient client, String bundleId, String language, String embeddedLanguageId,
 			boolean reviewedOnly, boolean withFallback) throws ServiceException {
 		try {
+			LanguageBundleBuilder bundleBuilder = new LanguageBundleBuilder(false);
+			bundleBuilder.embeddedLanguageCode(embeddedLanguageId);
 			Map<String, ResourceEntryData> resEntries = client.getResourceEntries(bundleId, language);
-			Collection<ResourceString> resStrings = new LinkedList<>();
 			for (Entry<String, ResourceEntryData> entry : resEntries.entrySet()) {
 				String key = entry.getKey();
 				ResourceEntryData data = entry.getValue();
 				String resVal = data.getValue();
+				String srcVal = data.getSourceValue();
 				Integer seqNum = data.getSequenceNumber();
+				List<String> notes = data.getNotes();
 
 				if (reviewedOnly) {
 					if (!data.isReviewed()) {
@@ -405,14 +429,17 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				}
 
 				if (resVal != null) {
-					ResourceString resString = new ResourceString(key, resVal);
+					ResourceString.Builder resb = ResourceString.with(key, resVal).sourceValue(srcVal);
 					if (seqNum != null) {
-						resString.setSequenceNumber(seqNum.intValue());
+						resb.sequenceNumber(seqNum.intValue());
 					}
-					resStrings.add(resString);
+					if (notes != null) {
+						resb.notes(notes);
+					}
+					bundleBuilder.addResourceString(resb);
 				}
 			}
-			return new Bundle(resStrings, null);
+			return bundleBuilder.build();
 		} catch (ServiceException e) {
 			throw new ServiceException("Globalization Pipeline service error", e);
 		}
@@ -430,38 +457,38 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		case "lang_suffix": {
 			FilePath dir = new FilePath(outBaseDir, relPath);
 			String tgtName = srcFileName;
-            // Compose file name if the output language is not the source language
-            if (!language.equals(srcLang)) {
-                String baseName = srcFileName;
-                String extension = "";
-                int extensionIndex = srcFileName.lastIndexOf('.');
-                if (extensionIndex > 0) {
-                    baseName = srcFileName.substring(0, extensionIndex);
-                    extension = srcFileName.substring(extensionIndex);
-                }
+			// Compose file name if the output language is not the source language
+			if (!language.equals(srcLang)) {
+				String baseName = srcFileName;
+				String extension = "";
+				int extensionIndex = srcFileName.lastIndexOf('.');
+				if (extensionIndex > 0) {
+					baseName = srcFileName.substring(0, extensionIndex);
+					extension = srcFileName.substring(extensionIndex);
+				}
 
-                // checks if the source file's base name (without extension) ends with
-                // source language code suffix, e.g. foo_en => foo
-                String srcLangSuffix = "_" + getLanguageId(srcLang, langIdStyle, langMap);
-                if (baseName.endsWith(srcLangSuffix)) {
-                    // truncates source the source language suffix from base name
-                    baseName = baseName.substring(0, baseName.length() - srcLangSuffix.length());
-                }
+				// checks if the source file's base name (without extension) ends with
+				// source language code suffix, e.g. foo_en => foo
+				String srcLangSuffix = "_" + getLanguageId(srcLang, langIdStyle, langMap);
+				if (baseName.endsWith(srcLangSuffix)) {
+					// truncates source the source language suffix from base name
+					baseName = baseName.substring(0, baseName.length() - srcLangSuffix.length());
+				}
 
-                // append target language suffix to the base name, e.g. foo => foo_de
-                tgtName = baseName + "_" + getLanguageId(language, langIdStyle, langMap) + extension;
-            }
+				// append target language suffix to the base name, e.g. foo => foo_de
+				tgtName = baseName + "_" + getLanguageId(language, langIdStyle, langMap) + extension;
+			}
 			outputFile = new FilePath(dir, tgtName);
 			break;
 		}
 		case "lang_only": {
 			FilePath dir = (new FilePath(outBaseDir, relPath)).getParent();
 			int extensionIndex = srcFileName.lastIndexOf('.');
-	        String extension = extensionIndex >= 0 ?
-	                srcFileName.substring(extensionIndex) : "";
-	        String baseName = getLanguageId(language, langIdStyle, langMap);
-	        outputFile = new FilePath(dir, baseName + extension);
-	        break;
+			String extension = extensionIndex >= 0 ?
+					srcFileName.substring(extensionIndex) : "";
+					String baseName = getLanguageId(language, langIdStyle, langMap);
+					outputFile = new FilePath(dir, baseName + extension);
+					break;
 		}
 		case "lang_subdir": {
 			FilePath dir = new FilePath(outBaseDir, relPath);
@@ -478,34 +505,34 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		default: 
 			FilePath dir = new FilePath(outBaseDir, relPath);
 			String tgtName = srcFileName;
-            // Compose file name if the output language is not the source language
-            if (!language.equals(srcLang)) {
-                String baseName = srcFileName;
-                String extension = "";
-                int extensionIndex = srcFileName.lastIndexOf('.');
-                if (extensionIndex > 0) {
-                    baseName = srcFileName.substring(0, extensionIndex);
-                    extension = srcFileName.substring(extensionIndex);
-                }
+			// Compose file name if the output language is not the source language
+			if (!language.equals(srcLang)) {
+				String baseName = srcFileName;
+				String extension = "";
+				int extensionIndex = srcFileName.lastIndexOf('.');
+				if (extensionIndex > 0) {
+					baseName = srcFileName.substring(0, extensionIndex);
+					extension = srcFileName.substring(extensionIndex);
+				}
 
-                // checks if the source file's base name (without extension) ends with
-                // source language code suffix, e.g. foo_en => foo
-                String srcLangSuffix = "_" + getLanguageId(srcLang, langIdStyle, langMap);
-                if (baseName.endsWith(srcLangSuffix)) {
-                    // truncates source the source language suffix from base name
-                    baseName = baseName.substring(0, baseName.length() - srcLangSuffix.length());
-                }
+				// checks if the source file's base name (without extension) ends with
+				// source language code suffix, e.g. foo_en => foo
+				String srcLangSuffix = "_" + getLanguageId(srcLang, langIdStyle, langMap);
+				if (baseName.endsWith(srcLangSuffix)) {
+					// truncates source the source language suffix from base name
+					baseName = baseName.substring(0, baseName.length() - srcLangSuffix.length());
+				}
 
-                // append target language suffix to the base name, e.g. foo => foo_de
-                tgtName = baseName + "_" + getLanguageId(language, langIdStyle, langMap) + extension;
-            }
+				// append target language suffix to the base name, e.g. foo => foo_de
+				tgtName = baseName + "_" + getLanguageId(language, langIdStyle, langMap) + extension;
+			}
 			outputFile = new FilePath(dir, tgtName);
 			break;
 		}
 
-//		if (outputFile == null) {
-//			throw new InterruptedException("Failed to resolve output directory");
-//		}
+		//		if (outputFile == null) {
+		//			throw new InterruptedException("Failed to resolve output directory");
+		//		}
 
 		listener.getLogger().println("Exporting bundle:" + pathToBundleId(getType(), bf) + " language:" + language + " to "
 				+ outputFile.toURI().getPath());
@@ -526,41 +553,42 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			outputFile.getParent().mkdirs();
 		}
 
-		Bundle bundle;
+		LanguageBundle bundle;
+		String embeddedLangId = getEmbeddedLanguageId(language, langMap);
 
 		switch (outContntOpt) {
 		case "merge_to_src":
-			bundle = getBundle(client, pathToBundleId(getType(), bf), language, false, true);
+			bundle = getBundle(client, pathToBundleId(getType(), bf), language, embeddedLangId, false, true);
 			mergeTranslation(bundle, language, getResourceType(getType()), bf, outputFile);
 			break;
 
 		case "trans_with_fallback":
-			bundle = getBundle(client, pathToBundleId(getType(), bf), language, false, true);
+			bundle = getBundle(client, pathToBundleId(getType(), bf), language, embeddedLangId, false, true);
 			exportTranslation(bundle, language, getResourceType(getType()), outputFile);
 			break;
 
 		case "trans_only":
-			bundle = getBundle(client, pathToBundleId(getType(), bf), language, false, false);
+			bundle = getBundle(client, pathToBundleId(getType(), bf), language, embeddedLangId, false, false);
 			exportTranslation(bundle, language, getResourceType(getType()), outputFile);
 			break;
 
 		case "merge_reviewed_to_src":
-			bundle = getBundle(client, pathToBundleId(getType(), bf), language, true, true);
+			bundle = getBundle(client, pathToBundleId(getType(), bf), language, embeddedLangId, true, true);
 			mergeTranslation(bundle, language, getResourceType(getType()), bf, outputFile);
 			break;
 
 		case "reviewed_with_fallback":
-			bundle = getBundle(client, pathToBundleId(getType(), bf), language, true, true);
+			bundle = getBundle(client, pathToBundleId(getType(), bf), language, embeddedLangId, true, true);
 			exportTranslation(bundle, language, getResourceType(getType()), outputFile);
 			break;
 
 		case "reviewed_only":
-			bundle = getBundle(client, pathToBundleId(getType(), bf), language, true, false);
+			bundle = getBundle(client, pathToBundleId(getType(), bf), language, embeddedLangId, true, false);
 			exportTranslation(bundle, language, getResourceType(getType()), outputFile);
 			break;
-			
+
 		default:
-			bundle = getBundle(client, pathToBundleId(getType(), bf), language, false, true);
+			bundle = getBundle(client, pathToBundleId(getType(), bf), language, embeddedLangId, false, true);
 			mergeTranslation(bundle, language, getResourceType(getType()), bf, outputFile);
 			break;
 		}
@@ -635,7 +663,6 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		Map<String, String> langMappingMap = new HashMap<String, String>();
 
 
-
 		// CHECKING CREDENTIALS
 		if(url.trim().equals("") || instanceId.trim().equals("") || userId.trim().equals("") || password.trim().equals("")){
 			listener.getLogger().println("Empty credentials.. Please enter IBM Globalization Pipeline credentials (Instance id, url, username, password).");
@@ -695,7 +722,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			build.setResult(Result.UNSTABLE);
 			return;
 		}
-		
+
 		// CHECKING LANGUAGES AND MAPPING
 		if(langMap.trim().equals("")){
 			listener.getLogger().println("Please enter atleast one target language");
@@ -720,7 +747,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				build.setResult(Result.UNSTABLE);
 				return;
 			}
-			
+
 
 		}catch(JsonParseException jp){
 			listener.getLogger().println("Invalid Json input of Language Map. Please enter valid json form");
@@ -745,7 +772,6 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			build.setResult(Result.FAILURE);
 			return;
 		}
-
 
 
 		// UPLOAD
@@ -778,13 +804,17 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 						listener.getLogger().println("bundle:" + bundleId + " does not exist, creating a new bundle.");
 						createNew = true;
 					}
-
+					
+					
 					// Parse the resource bundle file
-					ResourceFilter filter = ResourceFilterFactory.get(getResourceType(type));
+					ResourceFilter filter = ResourceFilterFactory.getResourceFilter(getType());
+					if (filter == null) {
+						throw new IOException("Resource filter for " + getType() + " is not available.");
+					}
 					Map<String, NewResourceEntryData> resEntries = new HashMap<>();
 
 					try (InputStream fis = bf.read()) {
-						Bundle resBundle = filter.parse(fis);
+						LanguageBundle resBundle = filter.parse(fis, new FilterOptions(Locale.forLanguageTag(srcLang)));
 
 						if (createNew) {
 							NewBundleData newBundleData = new NewBundleData(srcLang);
@@ -811,6 +841,9 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					} catch (IOException e) {
 						listener.getLogger().println("Failed to read the resoruce data from "
 								+ bf.toURI().getPath() + ": " + e.getMessage());
+					} catch (ResourceFilterException e) {
+						throw new IOException("Failed to parse the resource data from "
+								+ bf.toURI().getPath() + ": " + e.getMessage(), e);
 					}
 
 					if (resEntries.isEmpty()) {
@@ -855,7 +888,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				outDirectory = new FilePath(workspace, outDir);
 			}
 
-			
+
 			try {
 				bundleIds = gpClient.getBundleIds();
 			} catch (ServiceException e1) {
@@ -893,9 +926,9 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 
 				if (!srcLang.equals(bdlSrcLang)) {
 					listener.getLogger().println("The source language of the bundle:" + bundleId
-					+ " (" + bdlSrcLang + ") is different from the language specified by the configuration ("
-					+ srcLang + ")");
-					
+							+ " (" + bdlSrcLang + ") is different from the language specified by the configuration ("
+							+ srcLang + ")");
+
 				}
 
 				if (outputSourceLang) {
@@ -929,13 +962,13 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 								+ ") does not exist in the bundle:" + bundleId);
 					}
 				}
-				
+
 			}
 
 
 		}
 
-		
+
 		listener.getLogger().println("*************** IBM GLOBALIZATION PIPELINE BUILDSTEP Done!! ***************");
 
 	}
@@ -967,7 +1000,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		 * <p>
 		 * If you don't want fields to be persisted, use {@code transient}.
 		 */
-		
+
 
 		/**
 		 * In order to load the persisted global configuration, you have to 
@@ -1253,9 +1286,9 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				return FormValidation.error("Something went wrong @language Map " + e.getMessage());
 			}
 		}
-		
-		
-		
+
+
+
 		// VALIDATING OutputSourceLang NO NEED
 		// VALIDATING OutputCotentOption NO NEED
 		// VALIDATING BundleLayout NO NEED
@@ -1315,7 +1348,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			save();
 			return super.configure(req,formData);
 		}
-		
+
 	}
 }
 
