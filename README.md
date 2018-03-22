@@ -25,6 +25,7 @@
   * [Basic Use Case](#TOC-Usage-Basic)
   * [Advanced Use Cases](#TOC-Usage-Advanced)
 * [Configuration Parameter Reference](#TOC-ConfigParamRef)
+* [Custom Resource Filter](#TOC-CustomFilter)
 
 
 ---
