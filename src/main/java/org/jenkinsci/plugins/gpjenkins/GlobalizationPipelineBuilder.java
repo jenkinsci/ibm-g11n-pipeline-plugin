@@ -52,6 +52,7 @@ import com.ibm.g11n.pipeline.client.ServiceAccount;
 import com.ibm.g11n.pipeline.client.ServiceClient;
 import com.ibm.g11n.pipeline.client.ServiceException;
 import com.ibm.g11n.pipeline.client.rb.CloudResourceBundleControl;
+import com.ibm.g11n.pipeline.example.CustomResourceFilterProvider;
 import com.ibm.g11n.pipeline.resfilter.FilterOptions;
 import com.ibm.g11n.pipeline.resfilter.LanguageBundle;
 import com.ibm.g11n.pipeline.resfilter.LanguageBundleBuilder;
@@ -81,6 +82,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -806,8 +808,26 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					}
 					
 					
+					// UNCOMMENT FOR CUSTOM FILTER IMPLEMENTATION
+					/*
+					ClassLoader orig = Thread.currentThread().getContextClassLoader(); 
+					Thread.currentThread().setContextClassLoader(Jenkins.getInstance().getPluginManager().uberClassLoader); 
+					ServiceLoader.load(CustomResourceFilterProvider.class); // REPLACE `CustomResourceFilterProvider.class` with your custom filter provider class
+					*/
+					
+					 
 					// Parse the resource bundle file
 					ResourceFilter filter = ResourceFilterFactory.getResourceFilter(getType());
+					
+					
+					// UNCOMMENT FOR CUSTOM FILTER IMPLEMENTATION
+					/*
+					Thread.currentThread().setContextClassLoader(orig); 
+					*/
+					
+					
+					
+					
 					if (filter == null) {
 						throw new IOException("Resource filter for " + getType() + " is not available.");
 					}
@@ -856,7 +876,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					}
 				}
 
-			} catch (ServiceException e) {
+			} catch (ServiceException | NullPointerException e) {
 				listener.getLogger().println("Globalization Pipeline exception : " + e.getMessage());
 				build.setResult(Result.UNSTABLE);
 				return;

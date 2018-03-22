@@ -85,6 +85,14 @@
 			<version>1.2.1</version>
 		</dependency>
 		
+		<!-- ADD any Custom filter dependency. (if any). Below is CSV filter example dependency -->
+		<!--
+		<dependency>
+			<groupId>com.ibm.g11n.pipeline</groupId>
+			<artifactId>csv-filter</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		-->
 		
 	</dependencies>
 

@@ -70,7 +70,11 @@
 		<option value="pot" selected="${instance.type.equals('pot')? 'true':null}">GNU gettext portable object template file</option>
 		<option value="yml" selected="${instance.type.equals('yml')? 'true':null}">YAML</option>
 		<option value="xliff" selected="${instance.type.equals('xliff')? 'true':null}">XLIFF</option>
+
+		<!-- Please ADD type for custom filter implementation (if any). See CSV filter example type in next line-->
+		<!--<option value="CSV" selected="${instance.type.equals('CSV')? 'true':null}">CSV</option>-->
 		</select>
+		
 	</f:entry>
     <f:entry name="languageIdStyle" title="BCP47 formatting (For DOWNLOAD only)" field="languageIdStyle">
 		<select name="languageIdStyle">

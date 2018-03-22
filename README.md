@@ -381,3 +381,27 @@ For example, if the source bundle file is `com/ibm/g11n/en/MyMessages.properties
 then the French version will be `com/ibm/g11n/fr/MyMessages.properties`.
 
 The default value is **LANGUAGE_SUFFIX**.
+
+
+
+# <a name="TOC-CustomFilter"></a>Custom Resource Filter
+
+[Globalization Pipeline Resource Filter](https://github.com/IBM-Cloud/gp-java-tools/tree/master/gp-res-filter) provides
+a mechanism to implement your own custom filter, that can be used through
+Globalization Pipeline Maven Plugin/Ant Task and other tools (including this Jenkins Plugin).
+
+To embed your own custom filter with this Jenkins plugin, follow these steps
+
+1. Add your custom resource filter dependency in [pom.xml](https://github.com/IBM-Cloud/gp-jenkins/blob/master/pom.xml)
+<img src="assets/gp-jenkins-csv-filter.png" alt="gp-jenkins-csv-filter"/>
+
+The image above uses the example of [csv-filter](https://github.com/IBM-Cloud/gp-java-tools/tree/master/examples/custom-res-filter/csv-filter). Please use it for reference to create your own custom filter.
+
+2. Add your filter type in [config.jelly](https://github.com/IBM-Cloud/gp-jenkins/blob/master/src/main/resources/org/jenkinsci/plugins/gpjenkins/GlobalizationPipelineBuilder/config.jelly)
+<img src="assets/gp-jenkins-custom-res-config.png" alt="gp-jenkins-custom-res-config"/>
+Again, the image above uses the type `CSV` from example of [csv-filter](https://github.com/IBM-Cloud/gp-java-tools/tree/master/examples/custom-res-filter/csv-filter). Please use it for reference to create your own custom filter.
+
+3. Allow Jenkins to load your provider class in [GlobalizationPipelineBuilder.java](https://github.com/IBM-Cloud/gp-jenkins/blob/master/src/main/java/org/jenkinsci/plugins/gpjenkins/GlobalizationPipelineBuilder.java)
+This is done during the `upload` part of implementation
+<img src="assets/gp-jenkins-custom-java.png" alt="gp-jenkins-custom-java"/>
+Again, the image above uses the example of [csv-filter](https://github.com/IBM-Cloud/gp-java-tools/tree/master/examples/custom-res-filter/csv-filter). Please use it for reference to create your own custom filter.
