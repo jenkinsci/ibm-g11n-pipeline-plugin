@@ -52,7 +52,7 @@ import com.ibm.g11n.pipeline.client.ServiceAccount;
 import com.ibm.g11n.pipeline.client.ServiceClient;
 import com.ibm.g11n.pipeline.client.ServiceException;
 import com.ibm.g11n.pipeline.client.rb.CloudResourceBundleControl;
-import com.ibm.g11n.pipeline.example.CustomResourceFilterProvider;
+//import com.ibm.g11n.pipeline.example.CustomResourceFilterProvider;
 import com.ibm.g11n.pipeline.resfilter.FilterOptions;
 import com.ibm.g11n.pipeline.resfilter.LanguageBundle;
 import com.ibm.g11n.pipeline.resfilter.LanguageBundleBuilder;
