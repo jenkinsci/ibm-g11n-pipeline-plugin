@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--		
-- * Copyright IBM Corp. 2017, 2018		
-- *		
-- * Licensed under the Apache License, Version 2.0 (the "License");		
-- * you may not use this file except in compliance with the License.		
-- * You may obtain a copy of the License at		
-- *		
-- * http://www.apache.org/licenses/LICENSE-2.0		
-- *		
-- * Unless required by applicable law or agreed to in writing, software		
-- * distributed under the License is distributed on an "AS IS" BASIS,		
-- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.		
-- * See the License for the specific language governing permissions and		
-- * limitations under the License.		
-- */		
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -34,10 +18,14 @@
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have 
 			this version or newer to run. -->
 		<jenkins.version>1.625.3</jenkins.version>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <java.level>8</java.level>
 	</properties>
 
-	<name>gp-jenkins</name>
-	<description>IBM Globalizaton Pipeline Jenkins Plugin is designed for integrating Globalization Pipeline service with Jenkins jobs and builds. The plugin can upload translatable resource bundles from any Jenkins job workspace to an instance of Globalization Pipeline service and download translated resource bundles to Jenkins job workspace.</description>
+	<name>IBM Globalization Pipeline Plugin</name>
+	<description>This Jenkins Plugin is designed for integrating Globalization Pipeline service with Jenkins jobs and builds. The plugin can upload translatable resource bundles from any Jenkins job workspace to an instance of Globalization Pipeline service and download translated resource bundles to Jenkins job workspace.</description>
+	<url>https://github.com/IBM-Cloud/gp-jenkins</url>
 
 
 	<licenses>
@@ -64,6 +52,11 @@
 			<id>repo.jenkins-ci.org</id>
 			<url>https://repo.jenkins-ci.org/public/</url>
 		</repository>
+		<repository>
+            <id>okapi</id>
+            <name>Okapi Framework Repository</name>
+            <url>http://repository-okapi.forge.cloudbees.com/release/</url>
+        </repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -73,26 +66,26 @@
 	</pluginRepositories>
 	<!-- If you want to depend on other plugins: -->
 	<dependencies>
+	
 		<dependency>
 			<groupId>com.ibm.g11n.pipeline</groupId>
 			<artifactId>gp-java-client</artifactId>
-			<version>1.1.5</version>
+			<version>1.2.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.ibm.g11n.pipeline</groupId>
 			<artifactId>gp-res-filter</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.7</version>
 		</dependency>
 		
 		<!-- ADD any Custom filter dependency. (if any). Below is CSV filter example dependency -->
-		<!--
 		<dependency>
 			<groupId>com.ibm.g11n.pipeline</groupId>
-			<artifactId>csv-filter</artifactId>
-			<version>1.0.0</version>
+			<artifactId>csv-res-filter</artifactId>
+			<version>1.2.7</version>
 		</dependency>
-		-->
+		
 		
 	</dependencies>
 

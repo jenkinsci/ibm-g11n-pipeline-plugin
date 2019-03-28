@@ -15,58 +15,6 @@
  */
 
 package org.jenkinsci.plugins.gpjenkins;
-import hudson.Launcher;
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Result;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.tasks.Builder;
-import hudson.tasks.CommandInterpreter;
-import hudson.tasks.Maven;
-import hudson.tasks.Shell;
-import hudson.tasks.BuildStepDescriptor;
-import jenkins.model.Jenkins;
-import jenkins.tasks.SimpleBuildStep;
-import net.sf.json.JSONObject;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import com.ibm.g11n.pipeline.client.BundleData;
-import com.ibm.g11n.pipeline.client.NewBundleData;
-import com.ibm.g11n.pipeline.client.ServiceAccount;
-import com.ibm.g11n.pipeline.client.ServiceClient;
-import com.ibm.g11n.pipeline.client.ServiceException;
-import com.ibm.g11n.pipeline.client.rb.CloudResourceBundleControl;
-//import com.ibm.g11n.pipeline.example.CustomResourceFilterProvider;
-import com.ibm.g11n.pipeline.resfilter.FilterOptions;
-import com.ibm.g11n.pipeline.resfilter.LanguageBundle;
-import com.ibm.g11n.pipeline.resfilter.LanguageBundleBuilder;
-import com.ibm.g11n.pipeline.resfilter.ResourceFilter;
-import com.ibm.g11n.pipeline.resfilter.ResourceFilterException;
-import com.ibm.g11n.pipeline.resfilter.ResourceFilterFactory;
-import com.ibm.g11n.pipeline.resfilter.ResourceString;
-import com.ibm.g11n.pipeline.client.NewResourceEntryData;
-import com.ibm.g11n.pipeline.client.ResourceEntryData;
-
-import org.kohsuke.stapler.QueryParameter;
-
-import javax.servlet.ServletException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,8 +24,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,6 +31,50 @@ import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.servlet.ServletException;
+
+import org.kohsuke.stapler.AncestorInPath;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.ibm.g11n.pipeline.client.BundleData;
+import com.ibm.g11n.pipeline.client.NewBundleData;
+import com.ibm.g11n.pipeline.client.NewResourceEntryData;
+import com.ibm.g11n.pipeline.client.ResourceEntryData;
+import com.ibm.g11n.pipeline.client.ServiceAccount;
+import com.ibm.g11n.pipeline.client.ServiceClient;
+import com.ibm.g11n.pipeline.client.ServiceException;
+import com.ibm.g11n.pipeline.resfilter.FilterOptions;
+import com.ibm.g11n.pipeline.resfilter.LanguageBundle;
+import com.ibm.g11n.pipeline.resfilter.LanguageBundleBuilder;
+import com.ibm.g11n.pipeline.resfilter.ResourceFilter;
+import com.ibm.g11n.pipeline.resfilter.ResourceFilterException;
+import com.ibm.g11n.pipeline.resfilter.ResourceFilterFactory;
+import com.ibm.g11n.pipeline.resfilter.ResourceString;
+import com.ibm.g11n.pipeline.resfilter.csv.CSVFilter;
+import com.ibm.g11n.pipeline.resfilter.impl.DefaultResourceFilterProvider;
+
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.model.AbstractProject;
+import hudson.model.Result;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.Builder;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+import jenkins.tasks.SimpleBuildStep;
+import net.sf.json.JSONObject;
+
 
 /**
  * Sample {@link Builder}.
@@ -316,7 +306,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 
 		FilePath parent = path.getParent();
 		String pkgName = "";
-		if(type.equals("java")){
+		if(DefaultResourceFilterProvider.isJavaType(type)){
 			pkgName = parent == null ? "" :
 				computeParentFromBaseDir(path).replace(File.separatorChar, '.');
 		}
@@ -325,7 +315,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				computeParentFromBaseDir(path).replace(File.separatorChar, '-');
 		}
 		String fileName = path.getName().replaceAll(" ", "_");
-		if (type.equals("java")) {
+		if (DefaultResourceFilterProvider.isJavaType(type)) {
 			int dotIdx = fileName.indexOf('.');
 			if (dotIdx >= 0) {
 				fileName = fileName.substring(0, dotIdx);
@@ -419,6 +409,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 				String srcVal = data.getSourceValue();
 				Integer seqNum = data.getSequenceNumber();
 				List<String> notes = data.getNotes();
+				Map<String, String> metadata = data.getMetadata();
 
 				if (reviewedOnly) {
 					if (!data.isReviewed()) {
@@ -438,6 +429,9 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					if (notes != null) {
 						resb.notes(notes);
 					}
+					if (metadata != null) {
+                        resb.metadata(metadata);
+                    }
 					bundleBuilder.addResourceString(resb);
 				}
 			}
@@ -808,23 +802,20 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					}
 					
 					
-					// UNCOMMENT FOR CUSTOM FILTER IMPLEMENTATION
-					/*
 					ClassLoader orig = Thread.currentThread().getContextClassLoader(); 
 					Thread.currentThread().setContextClassLoader(Jenkins.getInstance().getPluginManager().uberClassLoader); 
-					ServiceLoader.load(CustomResourceFilterProvider.class); // REPLACE `CustomResourceFilterProvider.class` with your custom filter provider class
-					*/
+					ServiceLoader.load(CSVFilter.class); 
+					/* 
+					 * (optional - only needed in case of adding your own custom filters)
+					 * ADD more custom filters as needed with your custom filter provider class
+					 * Above example uses CSV filter for example.
+					 * For e.g ServiceLoader.load(MyCustomFilter.class);
+					 */
 					
-					 
+					
 					// Parse the resource bundle file
 					ResourceFilter filter = ResourceFilterFactory.getResourceFilter(getType());
-					
-					
-					// UNCOMMENT FOR CUSTOM FILTER IMPLEMENTATION
-					/*
 					Thread.currentThread().setContextClassLoader(orig); 
-					*/
-					
 					
 					
 					
@@ -844,6 +835,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 							}
 							// set bundle notes
 							newBundleData.setNotes(resBundle.getNotes());
+							newBundleData.setMetadata(resBundle.getMetadata());
 							gpClient.createBundle(bundleId, newBundleData);
 							listener.getLogger().println("Created bundle: " + bundleId);
 						}
@@ -856,6 +848,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 							}
 							// set resource string notes
 							resEntryData.setNotes(resString.getNotes());
+							resEntryData.setMetadata(resString.getMetadata());
 							resEntries.put(resString.getKey(), resEntryData);
 						}
 					} catch (IOException e) {
