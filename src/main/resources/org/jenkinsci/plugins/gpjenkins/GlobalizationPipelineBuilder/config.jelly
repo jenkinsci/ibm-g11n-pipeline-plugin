@@ -62,6 +62,8 @@
 		<select name="type">
 		<option value="java" selected="${instance.type.equals('java')? 'true':null}">Java</option>
 		<option value="javautf8" selected="${instance.type.equals('javautf8')? 'true':null}">JavaUTF8</option>
+		<option value="javamsg" selected="${instance.type.equals('javamsg')? 'true':null}">JavaMSG</option>
+		<option value="javamsgutf8" selected="${instance.type.equals('javamsgutf8')? 'true':null}">JavaMSGUTF8</option>
 		<option value="json" selected="${instance.type.equals('json')? 'true':null}">JSON</option>
 		<option value="amd" selected="${instance.type.equals('amd')? 'true':null}">AMDjs</option>
 		<option value="ios" selected="${instance.type.equals('ios')? 'true':null}">iOS</option>
@@ -70,7 +72,11 @@
 		<option value="pot" selected="${instance.type.equals('pot')? 'true':null}">GNU gettext portable object template file</option>
 		<option value="yml" selected="${instance.type.equals('yml')? 'true':null}">YAML</option>
 		<option value="xliff" selected="${instance.type.equals('xliff')? 'true':null}">XLIFF</option>
+		
+		<!-- Please ADD type for custom filter implementation (if any). See CSV filter example type in next line-->
+		<option value="CSV" selected="${instance.type.equals('CSV')? 'true':null}">CSV</option>
 		</select>
+		
 	</f:entry>
     <f:entry name="languageIdStyle" title="BCP47 formatting (For DOWNLOAD only)" field="languageIdStyle">
 		<select name="languageIdStyle">

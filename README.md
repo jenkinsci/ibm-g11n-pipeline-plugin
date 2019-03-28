@@ -25,6 +25,7 @@
   * [Basic Use Case](#TOC-Usage-Basic)
   * [Advanced Use Cases](#TOC-Usage-Advanced)
 * [Configuration Parameter Reference](#TOC-ConfigParamRef)
+* [Custom Resource Filter](#TOC-CustomFilter)
 
 
 ---
@@ -285,6 +286,8 @@ Specifies a resource type. Available options are
 
 * **JAVA** - Java property resource bundle file
 * **JAVAUTF8** - Java UTF8 property resource bundle file
+* **JAVAMSG** - Java property resource bundle file with MessageFormat pattern stirngs only
+* **JAVAMSGUTF8** - Java UTF8 property resource bundle file with MessageFormat pattern strings only
 * **JSON** - Resource string key/value pairs stored in JSON format. For now nested JSON object is not supported.
 * **AMDJS** - RequireJS I18N bundle file
 * **GLOBALIZEJS** - Globalize.js JSON resource bundle file
@@ -381,3 +384,25 @@ For example, if the source bundle file is `com/ibm/g11n/en/MyMessages.properties
 then the French version will be `com/ibm/g11n/fr/MyMessages.properties`.
 
 The default value is **LANGUAGE_SUFFIX**.
+
+
+
+# <a name="TOC-CustomFilter"></a>Custom Resource Filter (Optional)
+
+[Globalization Pipeline Resource Filter](https://github.com/IBM-Cloud/gp-java-tools/tree/master/gp-res-filter) provides
+a mechanism to implement your own custom filter, that can be used through
+Globalization Pipeline Maven Plugin/Ant Task and other tools (including this Jenkins Plugin).
+
+To embed your own custom filter with this Jenkins plugin, follow these steps (showing an example of [CSV filter](https://github.com/IBM-Cloud/gp-java-tools/tree/master/csv-res-filter))
+
+1. Add your custom resource filter dependency in [pom.xml](https://github.com/IBM-Cloud/gp-jenkins/blob/master/pom.xml)
+<img src="assets/gp-jenkins-csv-filter.png" alt="gp-jenkins-csv-filter"/>
+
+The image above uses the example of [csv-res-filter](https://github.com/IBM-Cloud/gp-java-tools/tree/master/csv-res-filter). Please use it for reference to create your own custom filter.
+
+2. Add your filter type in [config.jelly](https://github.com/IBM-Cloud/gp-jenkins/blob/master/src/main/resources/org/jenkinsci/plugins/gpjenkins/GlobalizationPipelineBuilder/config.jelly)
+<img src="assets/gp-jenkins-custom-res-config.png" alt="gp-jenkins-custom-res-config"/>
+
+3. Allow Jenkins to load your provider class in [GlobalizationPipelineBuilder.java](https://github.com/IBM-Cloud/gp-jenkins/blob/master/src/main/java/org/jenkinsci/plugins/gpjenkins/GlobalizationPipelineBuilder.java)
+This is done during the `upload` part of implementation
+<img src="assets/gp-jenkins-custom-java.png" alt="gp-jenkins-custom-java"/>
