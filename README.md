@@ -89,9 +89,9 @@ Add following `settings.xml` file in `${user.home}/.m2` folder
 This file is shown in [Setting up Environment](https://wiki.jenkins.io/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment) section. Please double check the file content from there.
 
 Now, clone [gp-jenkins](https://github.ibm.com/gp/gp-jenkins/) repository and run `mvn clean install` in this repository.
-This will create `gp-jenkins.hpi` file in `target` folder.
+This will create `ibm-g11n-pipeline.hpi` file in `target` folder.
 
-Now, share this `gp-jenkins.hpi` to your Jenkins admin or if your are hosting Jenkins as an admin, please upload [gp-jenkins.hpi](https://jenkins.io/doc/book/managing/plugins/#advanced-installation) plugin.
+Now, share this `ibm-g11n-pipeline.hpi` to your Jenkins admin or if your are hosting Jenkins as an admin, please upload [ibm-g11n-pipeline.hpi](https://jenkins.io/doc/book/managing/plugins/#advanced-installation) plugin.
 
 If you want to run this plugin without uploading to your Jenkins space, you can test this plugin in a stand-alone Jenkins instance by running `mvn hpi:run` on cloned repository folder.
 
