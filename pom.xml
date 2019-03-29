@@ -10,8 +10,8 @@
 		<relativePath />
 	</parent>
 	<groupId>org.jenkins-ci.plugins</groupId>
-	<artifactId>gp-jenkins</artifactId>
-	<version>2.0</version>
+	<artifactId>ibm-g11n-pipeline</artifactId>
+	<version>1.0</version>
 	<packaging>hpi</packaging>
 
 	<properties>
@@ -24,7 +24,7 @@
 	</properties>
 
 	<name>IBM Globalization Pipeline Plugin</name>
-	<description>This Jenkins Plugin is designed for integrating Globalization Pipeline service with Jenkins jobs and builds. The plugin can upload translatable resource bundles from any Jenkins job workspace to an instance of Globalization Pipeline service and download translated resource bundles to Jenkins job workspace.</description>
+	<description>Uploads translatable resource bundles from any Jenkins job workspace to an instance of Globalization Pipeline service and download translated resource bundles to Jenkins job workspace.</description>
 	<url>https://github.com/IBM-Cloud/gp-jenkins</url>
 
 
