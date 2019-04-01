@@ -71,6 +71,7 @@ import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
@@ -98,7 +99,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 	private String instanceId;
 	private String url;
 	private String userId;
-	private String password;
+	private Secret password;
 	private String goalType;
 	private String baseDir;
 	private String includeRule;
@@ -119,7 +120,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 	// Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
 	@DataBoundConstructor
 	public GlobalizationPipelineBuilder(String instanceId, String url, String userId,
-			String password, String goalType,String baseDir,String includeRule,
+			Secret password, String goalType,String baseDir,String includeRule,
 			String excludeRule, String srcLang, String type, String langMap,
 			String languageIdStyle, Boolean outputSourceLang, String outputContentOption,
 			String bundleLayout, String outDir, Boolean overwrite
@@ -178,11 +179,11 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		this.userId = userId;
 	}
 
-	public String getPassword() {
+	public Secret getPassword() {
 		return password;
 	}
 
-	public void setPassword(String password) {
+	public void setPassword(Secret password) {
 		this.password = password;
 	}
 
@@ -631,7 +632,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		listener.getLogger().println("instanceId : " + getInstanceId());
 		listener.getLogger().println("url : " + getUrl());
 		listener.getLogger().println("userId : " + getUserId());
-		listener.getLogger().println("password : " + (getPassword().length()>4?getPassword().substring(0, 3) + "******":getPassword()));
+		listener.getLogger().println("password : " + (Secret.toString(getPassword()).length()>4 ? Secret.toString(getPassword()).substring(0, 3) + "******" : getPassword().getEncryptedValue()));
 		listener.getLogger().println("goalType : " + getGoalType());
 		listener.getLogger().println("baseDir : " + getBaseDir());
 		listener.getLogger().println("includeRule : " + getIncludeRule());
@@ -660,7 +661,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 
 
 		// CHECKING CREDENTIALS
-		if(url.trim().equals("") || instanceId.trim().equals("") || userId.trim().equals("") || password.trim().equals("")){
+		if(url.trim().equals("") || instanceId.trim().equals("") || userId.trim().equals("") || Secret.toString(password).trim().equals("")){
 			listener.getLogger().println("Empty credentials.. Please enter IBM Globalization Pipeline credentials (Instance id, url, username, password).");
 			build.setResult(Result.UNSTABLE);
 			return;
@@ -670,7 +671,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			gpClient = ServiceClient.getInstance(
 					ServiceAccount.getInstance(
 							url, instanceId,
-							userId, password));
+							userId, Secret.toString(password)));
 			gpClient.getBundleIds();
 		}catch(ServiceException e){
 			listener.getLogger().println("Invalid credentials.. Please enter valid IBM Globalization Pipeline credentials (Instance id, url, username, password).");
