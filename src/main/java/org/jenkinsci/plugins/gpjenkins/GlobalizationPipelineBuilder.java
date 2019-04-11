@@ -598,7 +598,7 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 
 		// This also shows how you can consult the global configuration of the builder
 
-
+		ClassLoader orig;
 		listener.getLogger().println("*************** IBM GLOBALIZATION PIPELINE BUILDSTEP starting... ***************");
 
 		// CHECKING NULLS
@@ -769,8 +769,26 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			build.setResult(Result.FAILURE);
 			return;
 		}
-
-
+		
+		
+		// Serviceloader for any custom filters (optional)
+		try{
+			orig = Thread.currentThread().getContextClassLoader(); 
+			Thread.currentThread().setContextClassLoader(Jenkins.getInstance().getPluginManager().uberClassLoader); 
+			ServiceLoader.load(CSVFilter.class); 
+			/* 
+			 * (optional - only needed in case of adding your own custom filters)
+			 * ADD more custom filters as needed with your custom filter provider class
+			 * Above example uses CSV filter for example.
+			 * For e.g ServiceLoader.load(MyCustomFilter.class);
+			 */
+		}
+		catch (NullPointerException e) {
+			listener.getLogger().println("Globalization Pipeline exception : " + e.getMessage());
+			build.setResult(Result.UNSTABLE);
+			return;
+		}
+		
 		// UPLOAD
 		if(goalType.equals("upload")){
 			try {
@@ -803,21 +821,9 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 					}
 					
 					
-					ClassLoader orig = Thread.currentThread().getContextClassLoader(); 
-					Thread.currentThread().setContextClassLoader(Jenkins.getInstance().getPluginManager().uberClassLoader); 
-					ServiceLoader.load(CSVFilter.class); 
-					/* 
-					 * (optional - only needed in case of adding your own custom filters)
-					 * ADD more custom filters as needed with your custom filter provider class
-					 * Above example uses CSV filter for example.
-					 * For e.g ServiceLoader.load(MyCustomFilter.class);
-					 */
-					
-					
 					// Parse the resource bundle file
 					ResourceFilter filter = ResourceFilterFactory.getResourceFilter(getType());
 					Thread.currentThread().setContextClassLoader(orig); 
-					
 					
 					
 					if (filter == null) {
