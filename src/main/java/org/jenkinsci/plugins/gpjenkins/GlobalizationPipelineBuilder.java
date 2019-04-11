@@ -598,7 +598,6 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 
 		// This also shows how you can consult the global configuration of the builder
 
-
 		listener.getLogger().println("*************** IBM GLOBALIZATION PIPELINE BUILDSTEP starting... ***************");
 
 		// CHECKING NULLS
@@ -658,6 +657,8 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		FilePath[] files = null; // files from baseDir after applying include/exclude rules
 		Set<String> bundleIds;// = new HashSet<String>();
 		Map<String, String> langMappingMap = new HashMap<String, String>();
+		ResourceFilter filter;
+		ClassLoader orig;
 
 
 		// CHECKING CREDENTIALS
@@ -769,8 +770,30 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 			build.setResult(Result.FAILURE);
 			return;
 		}
-
-
+		
+		
+		// Serviceloader for any custom filters (optional)
+		try{
+			orig = Thread.currentThread().getContextClassLoader(); 
+			Thread.currentThread().setContextClassLoader(Jenkins.getInstance().getPluginManager().uberClassLoader); 
+			ServiceLoader.load(CSVFilter.class); 
+			/* 
+			 * (optional - only needed in case of adding your own custom filters)
+			 * ADD more custom filters as needed with your custom filter provider class
+			 * Above example uses CSV filter for example.
+			 * For e.g ServiceLoader.load(MyCustomFilter.class);
+			 */
+			
+			// Parse the resource bundle file
+			filter = ResourceFilterFactory.getResourceFilter(getType());
+			Thread.currentThread().setContextClassLoader(orig); 
+		}
+		catch (NullPointerException e) {
+			listener.getLogger().println("Globalization Pipeline exception : " + e.getMessage());
+			build.setResult(Result.UNSTABLE);
+			return;
+		}
+		
 		// UPLOAD
 		if(goalType.equals("upload")){
 			try {
@@ -801,23 +824,6 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 						listener.getLogger().println("bundle:" + bundleId + " does not exist, creating a new bundle.");
 						createNew = true;
 					}
-					
-					
-					ClassLoader orig = Thread.currentThread().getContextClassLoader(); 
-					Thread.currentThread().setContextClassLoader(Jenkins.getInstance().getPluginManager().uberClassLoader); 
-					ServiceLoader.load(CSVFilter.class); 
-					/* 
-					 * (optional - only needed in case of adding your own custom filters)
-					 * ADD more custom filters as needed with your custom filter provider class
-					 * Above example uses CSV filter for example.
-					 * For e.g ServiceLoader.load(MyCustomFilter.class);
-					 */
-					
-					
-					// Parse the resource bundle file
-					ResourceFilter filter = ResourceFilterFactory.getResourceFilter(getType());
-					Thread.currentThread().setContextClassLoader(orig); 
-					
 					
 					
 					if (filter == null) {

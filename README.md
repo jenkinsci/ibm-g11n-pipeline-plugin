@@ -404,5 +404,5 @@ The image above uses the example of [csv-res-filter](https://github.com/IBM-Clou
 <img src="assets/gp-jenkins-custom-res-config.png" alt="gp-jenkins-custom-res-config"/>
 
 3. Allow Jenkins to load your provider class in [GlobalizationPipelineBuilder.java](https://github.com/jenkinsci/ibm-g11n-pipeline-plugin/blob/master/src/main/java/org/jenkinsci/plugins/gpjenkins/GlobalizationPipelineBuilder.java)
-This is done during the `upload` part of implementation
+This is right above the `upload` part of implementation
 <img src="assets/gp-jenkins-custom-java.png" alt="gp-jenkins-custom-java"/>
