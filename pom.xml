@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>org.jenkins-ci.plugins</groupId>
 	<artifactId>ibm-g11n-pipeline</artifactId>
-	<version>1.0</version>
+	<version>1.2.8</version>
 	<packaging>hpi</packaging>
 
 	<properties>
@@ -70,20 +70,20 @@
 		<dependency>
 			<groupId>com.ibm.g11n.pipeline</groupId>
 			<artifactId>gp-java-client</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.ibm.g11n.pipeline</groupId>
 			<artifactId>gp-res-filter</artifactId>
-			<version>1.2.7</version>
+			<version>1.2.8</version>
 		</dependency>
 		
 		<!-- ADD any Custom filter dependency. (if any). Below is CSV filter example dependency -->
 		<dependency>
 			<groupId>com.ibm.g11n.pipeline</groupId>
 			<artifactId>csv-res-filter</artifactId>
-			<version>1.2.7</version>
+			<version>1.2.8</version>
 		</dependency>
 		
 		
