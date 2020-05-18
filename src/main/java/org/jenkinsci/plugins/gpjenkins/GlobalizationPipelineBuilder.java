@@ -309,11 +309,11 @@ public class GlobalizationPipelineBuilder extends Builder implements SimpleBuild
 		String pkgName = "";
 		if(DefaultResourceFilterProvider.isJavaType(type)){
 			pkgName = parent == null ? "" :
-				computeParentFromBaseDir(path).replace(File.separatorChar, '.');
+				computeParentFromBaseDir(path).replace('/', '.');
 		}
 		else{
 			pkgName = parent == null ? "" :
-				computeParentFromBaseDir(path).replace(File.separatorChar, '-');
+				computeParentFromBaseDir(path).replace('/', '-');
 		}
 		String fileName = path.getName().replaceAll(" ", "_");
 		if (DefaultResourceFilterProvider.isJavaType(type)) {
