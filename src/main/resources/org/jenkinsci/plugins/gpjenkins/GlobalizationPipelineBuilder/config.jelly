@@ -65,7 +65,7 @@
 		<option value="javamsg" selected="${instance.type.equals('javamsg')? 'true':null}">JavaMSG</option>
 		<option value="javamsgutf8" selected="${instance.type.equals('javamsgutf8')? 'true':null}">JavaMSGUTF8</option>
 		<option value="json" selected="${instance.type.equals('json')? 'true':null}">JSON</option>
-		<option value="amd" selected="${instance.type.equals('amd')? 'true':null}">AMDjs</option>
+		<option value="amdjs" selected="${instance.type.equals('amdjs')? 'true':null}">AMDjs</option>
 		<option value="ios" selected="${instance.type.equals('ios')? 'true':null}">iOS</option>
 		<option value="android" selected="${instance.type.equals('android')? 'true':null}">Android XML</option>
 		<option value="po" selected="${instance.type.equals('po')? 'true':null}">GNU gettext portable object file</option>
